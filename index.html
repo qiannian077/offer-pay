@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>年包到手计算器</title>
+  <style>
+    *{box-sizing:border-box} body{margin:0;color:#192d27;background:#f5f8f6;font:16px/1.6 system-ui,sans-serif}
+    main{max-width:560px;margin:auto;padding:30px 20px} h1{font-size:28px;margin:0 0 18px}
+    label{display:block;margin:12px 0} input,select{width:100%;margin-top:4px;padding:8px;border:1px solid #879c92;border-radius:5px;background:white;font:inherit;color:inherit}
+    :focus-visible{outline:2px solid #075c4b;outline-offset:2px}
+    output{display:block;margin:20px 0 7px;padding:12px 0;border-block:1px solid #a4b7ae;color:#075c4b;font-weight:700;white-space:pre-line;overflow-wrap:anywhere}
+    small,details{color:#465b52} summary{cursor:pointer} a{color:#075c4b}
+  </style>
+</head>
+<body><main>
+  <h1>年包到手计算器</h1>
+  <label>税前现金年包（元）<input id="gross" type="number" min="1" max="100000000" step="any" value="210000" inputmode="decimal"></label>
+  <label>一年几薪<input id="months" type="number" min="12" max="24" step="0.1" value="14" inputmode="decimal"></label>
+  <label>参保城市<select id="city"><option value="bj">北京</option><option value="sh">上海</option></select></label>
+  <output id="result" for="gross months city" aria-live="polite"></output>
+  <small>按 2026 年下半年缴费口径年化；到手区间反映普通公积金比例差异。</small>
+  <details>
+    <summary>测算假设与官方依据</summary>
+    <p><small>假设工作并缴费 12 个月，各薪等额，额外薪资并入综合所得，以折算月薪估算缴费基数。平均每月到手为全年到手除以 12，不代表每月实际到账。不含雇主成本、股权、补充公积金、专项附加扣除及奖金单独计税。北京每月 3 元医疗互助费计入现金扣款，未计入税前扣除。实际到手以公司申报及工资单为准。输入只在当前浏览器页面计算，不上传。</small></p>
+    <p><a href="https://rsj.beijing.gov.cn/bm/ywml/202611/t20261106_4935571.html">北京社保</a> ·
+    <a href="https://www.beijing.gov.cn/gongkai/zfxxgk/zc/gz/202112/t20211215_2561945.html">北京医保</a> ·
+    <a href="https://gjj.beijing.gov.cn/web/zwgk61/2024zcwj/436433461/744103382/index.html">北京公积金</a><br>
+    <a href="https://rsj.sh.gov.cn/tgsgg_17341/20260818/t0035_1443203.html">上海社保基数</a> ·
+    <a href="https://www.shanghai.gov.cn/nw17239/20260913/37398bbb63ad4fffa64e0b9deb0f6afc.html">上海社保比例</a> ·
+    <a href="https://www.shanghai.gov.cn/gwk/affairs/content/0064@f3d788ec72e9404ebcbf3d27fda98435">上海公积金</a> ·
+    <a href="https://www.gov.cn/gongbao/content/2019/content_5386991.htm">全国个税税率表</a></p>
+  </details>
+</main>
+<script>
+  const $ = id => document.getElementById(id);
+  const cities = {
+    bj: {social:[7270,36348], fund:[2540,36348], rates:[.05,.12], fixed:3},
+    sh: {social:[7546,37731], fund:[2740,37731], rates:[.05,.07], fixed:0}
+  };
+  const brackets = [[36000,.03,0],[144000,.10,2520],[300000,.20,16920],
+    [420000,.25,31920],[660000,.30,52920],[960000,.35,85920],[Infinity,.45,181920]];
+  const cap = (x,[lo,hi]) => Math.max(lo,Math.min(hi,x));
+  const fmt = n => n.toLocaleString('zh-CN',{maximumFractionDigits:0});
+  const span = (a,b) => fmt(a) === fmt(b) ? fmt(a) + ' 元' : fmt(a) + '–' + fmt(b) + ' 元';
+  function render() {
+    const gross = $('gross').valueAsNumber, months = $('months').valueAsNumber;
+    const out = $('result');
+    if (!($('gross').validity.valid && $('months').validity.valid && gross > 0 && months >= 12 && months <= 24)) {
+      out.textContent = '请输入有效的年包，以及 12 至 24 之间的薪数。';
+      return;
+    }
+    const c = cities[$('city').value], wage = gross / months;
+    const net = rate => {
+      const deductions = 12 * (cap(wage,c.social) * .105 + Math.round(cap(wage,c.fund) * rate));
+      const taxable = Math.max(0,gross - deductions - 60000);
+      const [,r,q] = brackets.find(([limit]) => taxable <= limit);
+      return gross - deductions - c.fixed * 12 - (taxable * r - q);
+    };
+    const [low,high] = [net(c.rates[1]),net(c.rates[0])];
+    out.textContent = low < 0 ? '输入金额过低，不适用本工具的全职缴费假设。' :
+      '税前月薪：约 ' + fmt(wage) + ' 元\n全年到手：约 ' + span(low,high) + '\n平均每月到手：约 ' + span(low/12,high/12);
+  }
+  ['gross','months','city'].forEach(id => $(id).addEventListener('input',render));
+  render();
+</script>
+</body>
+</html>
