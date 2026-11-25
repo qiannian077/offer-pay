@@ -22,7 +22,7 @@ footer{padding-top:14px;border-top:1px solid var(--line)}summary{cursor:pointer;
 <body>
 <header><div class="wrap top"><strong>求职与薪酬工具</strong><a href="./">年包到手计算器</a></div></header>
 <main class="wrap">
-  <div class="heading"><h1>第一份劳动合同体检</h1><div class="actions"><button type="button" id="demo">填入示例</button><button type="reset" form="contract">清空</button></div></div>
+  <div class="heading"><h1>第一份劳动合同体检</h1><div class="actions"><button type="button" id="demo">填入示例</button><button type="button" id="clear">清空</button></div></div>
   <p class="note state" id="state" aria-live="polite">中国大陆劳动合同 · 输入只在当前页面计算，不上传、不保存。</p>
   <nav aria-label="检查项目"><a href="#trial">试用期</a><a href="#bonus">奖金</a><a href="#training">培训服务期</a><a href="#sources">官方依据</a></nav>
   <form id="contract" autocomplete="off" novalidate>
@@ -127,7 +127,7 @@ function render(){trialCheck();bonusCheck();trainingCheck();}
 const privacy='中国大陆劳动合同 · 输入只在当前页面计算，不上传、不保存。';
 form.addEventListener('submit',e=>e.preventDefault());
 form.addEventListener('input',render);
-form.addEventListener('reset',()=>queueMicrotask(()=>{$('state').textContent=privacy;render();}));
+$('clear').addEventListener('click',()=>{form.reset();$('state').textContent=privacy;render();});
 $('demo').addEventListener('click',()=>{
   const example={term:'2',trialMonths:3,salary:12000,trialSalary:9000,localMin:'',peerMin:'',bonusRule:'both',bonusMoney:18000,trainingType:'yes',fee:12000,penalty:10000,totalMonths:24,servedMonths:6};
   Object.entries(example).forEach(([id,value])=>{$(id).value=value;});
