@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第一份劳动合同体检</title>
+<style>
+:root{color-scheme:light;--ink:#192d27;--muted:#4a6058;--green:#075c4b;--line:#cfdcd6;--paper:#f5f8f6}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,"Microsoft YaHei",sans-serif}
+.wrap{max-width:1000px;margin:auto;padding-inline:clamp(14px,4%,30px)}header{background:white;border-bottom:1px solid var(--line)}
+.top,.heading,.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.top,.heading{justify-content:space-between}.top{min-height:54px}.top strong{color:var(--green)}
+a{color:var(--green);text-underline-offset:3px}main{padding-block:20px 38px}h1,h2,h3,p{margin:0}h1{font-size:29px;line-height:1.25}h2{font-size:20px}h3{font-size:14px}.note{color:var(--muted);font-size:13px}
+nav{display:flex;gap:8px 18px;flex-wrap:wrap;margin:12px 0 14px;font-size:14px}section{padding:16px 0;border-top:1px solid var(--line);scroll-margin-top:12px}
+fieldset{border:0;padding:0;margin:0;min-width:0}legend{padding:0;margin-bottom:8px;font-weight:700}.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.88fr);gap:20px;align-items:start}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 11px}
+label{display:block;font-size:14px;font-weight:620}.wide{grid-column:1/-1}input,select,button{font:inherit;color:inherit}input,select{width:100%;min-width:0;margin-top:4px;padding:6px 7px;min-height:40px;border:1px solid #879c92;border-radius:5px;background:white}
+button{padding:5px 9px;min-height:37px;border:1px solid #879c92;border-radius:6px;background:white;cursor:pointer;font-size:14px}button:hover{background:#e7f1ec}:focus-visible{outline:2px solid #14785f;outline-offset:2px}
+.report{border-left:3px solid #598477;padding:8px 10px;background:#edf4f0;min-width:0}.report output{display:block;margin-top:2px;white-space:pre-line;overflow-wrap:anywhere}.report p{margin-top:5px}.ask{color:#543515;background:#fff6e8;padding:5px 7px;font-size:13px}.report.warn{border-color:#936225}.state{min-height:1.6em}
+footer{padding-top:14px;border-top:1px solid var(--line)}summary{cursor:pointer;font-weight:700}footer p{margin-top:7px}
+@media(max-width:680px){.split{grid-template-columns:minmax(0,1fr);gap:10px}h1{font-size:24px}.fields{gap:8px}}
+@media(max-width:355px){.fields{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="wrap top"><strong>求职与薪酬工具</strong><a href="./">年包到手计算器</a></div></header>
+<main class="wrap">
+  <div class="heading"><h1>第一份劳动合同体检</h1><div class="actions"><button type="button" id="demo">填入示例</button><button type="reset" form="contract">清空</button></div></div>
+  <p class="note state" id="state" aria-live="polite">中国大陆劳动合同 · 输入只在当前页面计算，不上传、不保存。</p>
+  <nav aria-label="检查项目"><a href="#trial">试用期</a><a href="#bonus">奖金</a><a href="#training">培训服务期</a><a href="#sources">官方依据</a></nav>
+  <form id="contract" autocomplete="off" novalidate>
+    <section id="trial"><div class="split">
+      <fieldset><legend>01 · 试用期与工资</legend><div class="fields">
+        <label class="wide">劳动合同期限<select id="term"><option value="">未确认</option><option value="0">不满 3 个月，或以完成一定工作任务为期限</option><option value="1">满 3 个月、不满 1 年</option><option value="2">满 1 年、不满 3 年</option><option value="6">满 3 年，或无固定期限</option></select></label>
+        <label>约定试用期（月）<input type="number" id="trialMonths" min="0" max="120" step="any" placeholder="无试用期填 0"></label>
+        <label>合同正常月薪（元）<input type="number" id="salary" min="0" max="100000000" step="0.01" inputmode="decimal"></label>
+        <label>试用期月薪（元）<input type="number" id="trialSalary" min="0" max="100000000" step="0.01" inputmode="decimal"></label>
+        <label>用人单位所在地月最低工资（元）<input type="number" id="localMin" min="1" max="100000000" step="0.01" inputmode="decimal" placeholder="未核实可留空"></label>
+        <label class="wide">本单位同岗位最低档月薪（元）<input type="number" id="peerMin" min="1" max="100000000" step="0.01" inputmode="decimal" placeholder="未核实可留空"></label>
+      </div></fieldset>
+      <div class="report" id="trialReport"><h3>检查结果</h3><output id="trialOut" aria-live="polite"></output><p class="ask">问 HR：试用期多长、按哪一项工资标准核定？这些金额会写进合同吗？</p></div>
+    </div></section>
+    <section id="bonus"><div class="split">
+      <fieldset><legend>02 · 奖金发放条件</legend><div class="fields">
+        <label class="wide">书面条款怎么写<select id="bonusRule"><option value="">不清楚／没有书面条款</option><option value="fixed">金额或公式明确，未见发放条件</option><option value="performance">取决于考核、经营结果等</option><option value="active">要求发放日在职</option><option value="both">既要达标，又要求发放日在职</option></select></label>
+        <label class="wide">用于对比的奖金金额（元）<input type="number" id="bonusMoney" min="0" max="100000000" step="0.01" inputmode="decimal" placeholder="未写明可留空"></label>
+      </div></fieldset>
+      <div class="report" id="bonusReport"><h3>现金情景</h3><output id="bonusOut" aria-live="polite"></output><p class="ask" id="bonusAsk"></p></div>
+    </div></section>
+    <section id="training"><div class="split">
+      <fieldset><legend>03 · 培训服务期</legend><div class="fields">
+        <label class="wide">是否为公司出资、有费用凭证的专项专业技术培训？<select id="trainingType"><option value="">未确认</option><option value="yes">是，且有书面服务期约定</option><option value="no">只是普通入职培训或没有书面约定</option></select></label>
+        <label>有凭证的直接培训费用（元）<input type="number" id="fee" min="0" max="100000000" step="0.01" inputmode="decimal"></label>
+        <label>协议约定违约金（元，可选）<input type="number" id="penalty" min="0" max="100000000" step="0.01" inputmode="decimal"></label>
+        <label>总服务期（月）<input type="number" id="totalMonths" min="0.01" max="1200" step="any" inputmode="decimal"></label>
+        <label>已履行服务期（月）<input type="number" id="servedMonths" min="0" max="1200" step="any" inputmode="decimal" placeholder="尚未开始填 0"></label>
+      </div></fieldset>
+      <div class="report" id="trainingReport"><h3>金额上限试算</h3><output id="trainingOut" aria-live="polite"></output><p class="ask">问 HR：能提供培训费用清单和凭证吗？服务期起止日、费用分摊方式和违约金触发条件写在哪里？</p></div>
+    </div></section>
+  </form>
+  <footer><details id="sources"><summary>官方依据与适用范围</summary>
+    <p><a href="https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/201307/t20130701_780700.html">《劳动合同法》第 19、20、22 条</a> · <a href="https://www.gov.cn/zhengce/2008-09/19/content_2602519.htm">《劳动合同法实施条例》第 15、16、26 条</a> · <a href="https://www.court.gov.cn/fabu/xiangqing/364671.html">最高人民法院指导案例 183 号</a></p>
+    <p class="note">本工具只做签约前核对，不判断合同效力、奖金请求权或赔付责任。用人单位所在地最低工资请查当地人社部门的现行通知，并按当地工资构成口径比较。金额为税前估算；不覆盖非全日制、特殊福利服务期、竞业限制或其他情形。</p>
+  </details></footer>
+</main>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const form = $('contract');
+const yuan = n => n.toLocaleString('zh-CN',{maximumFractionDigits:2}) + ' 元';
+const number = id => $(id).value === '' ? null : $(id).valueAsNumber;
+const invalid = ids => ids.some(id => !$(id).validity.valid);
+function result(key,messages,warn=false) {
+  $(key+'Out').textContent = messages.join('\n');
+  $(key+'Report').classList.toggle('warn',warn);
+}
+function trialCheck() {
+  if (invalid(['trialMonths','salary','trialSalary','localMin','peerMin'])) return result('trial',['请核对试用期、工资或最低工资的输入。'],true);
+  const term=$('term').value, m=number('trialMonths'), s=number('salary'), p=number('trialSalary'), local=number('localMin'), peer=number('peerMin');
+  if (m===0) return result('trial',['未约定试用期。若合同写了“试岗”或其他考察期，确认是否另有工资条件。']);
+  const rows=[];
+  let warn=false;
+  if (term!=='') {
+    const max=Number(term);
+    const limit=max===0?'这个期限类别不得约定试用期。':'这个期限类别的试用期上限为 '+max+' 个月。';
+    warn=m!==null&&m>max;
+    rows.push(warn?'可能超期：'+limit:limit);
+  } else if(m!==null&&m>6) {warn=true;rows.push('可能超期：普通劳动合同的试用期最长 6 个月。');}
+  if (p!==null&&s!==null) {
+    const diff=s-p;
+    if(diff>0) rows.push('比正常月薪少 '+yuan(diff)+'／月'+(m!==null&&m>0?'，全试用期约少 '+yuan(diff*m):'')+'。');
+    else rows.push('按填入金额，试用期月薪未低于正常月薪。');
+  }
+  if (p!==null) {
+    if(local===null) rows.push('当地月最低工资未核实，不能检查这一项。');
+    else if(p<local) {warn=true;rows.push('低于填写的当地月最低工资 '+yuan(local)+'，请核对适用口径。');}
+    if(s!==null&&p<s*.8-.000001) {warn=true;rows.push('低于合同正常月薪的 80%（'+yuan(s*.8)+'）；不能单凭这一项定性。');}
+    if(peer!==null&&p<peer*.8-.000001) {warn=true;rows.push('也请核对同岗位最低档月薪的 80%（'+yuan(peer*.8)+'），填入的试用期工资低于此值。');}
+    if(peer===null&&s!==null&&p<s*.8-.000001) rows.push('同岗位最低档月薪未填，可向 HR 核对。');
+  }
+  result('trial',rows.length?rows:['选择合同期限并填写试用期和工资，可试算工资差额。'],warn);
+}
+function bonusCheck() {
+  const rule=$('bonusRule').value, amount=number('bonusMoney');
+  const active=rule==='active'||rule==='both', perf=rule==='performance'||rule==='both';
+  const rows=invalid(['bonusMoney'])?['请填写有效的奖金金额。']:
+    [amount===null?'未填写奖金金额，暂不计算情景。':'发放情景：'+yuan(amount)+'；未发情景：'+yuan(0)+'。'];
+  if(active) rows.push('“发放日在职”值得重点核对；离职并不由这几个选项自动判定为能领或不能领。');
+  if(perf) rows.push('核对考核指标、确认时间和未达标时的计算方式。');
+  if(!rule) rows.push('没有明确书面依据前，不宜把这笔钱当作保证收入。');
+  if(rule==='fixed') rows.push('核对是否另有奖金制度、附件或排除条款。');
+  $('bonusAsk').textContent=active?'问 HR：奖金对应哪个考核期、何时到账？如果发放前离职或合同到期，怎么处理？':'问 HR：奖金是保证金额还是目标金额？计算公式、发放日期和条件能否书面确认？';
+  result('bonus',rows,active||invalid(['bonusMoney']));
+}
+function trainingCheck() {
+  const type=$('trainingType').value;
+  if (type!=='yes') return result('training',[type==='no'?'普通入职培训或依据不明，不能直接套用专项培训违约金公式。':'请先确认培训性质、费用凭证和服务期协议，再试算。']);
+  if(invalid(['fee','penalty','totalMonths','servedMonths'])) return result('training',['请核对培训费用、违约金和服务期输入。'],true);
+  const fee=number('fee'), agreed=number('penalty'), total=number('totalMonths'), served=number('servedMonths');
+  if ([fee,total,served].includes(null)) return result('training',['填写培训费用、总服务期和已履行月数后试算。']);
+  if (served>total) return result('training',['已履行月数不能大于总服务期；已经履行完毕可填相同月数。'],true);
+  const split=Math.floor((fee*(total-served)/total+1e-9)*100)/100;
+  const rows=['剩余服务期分摊培训费：'+yuan(split)+'。'];
+  if(agreed!==null) rows.push('按已填协议金额试算，上限不超过 '+yuan(Math.min(agreed,split))+'。');
+  else rows.push('协议金额未填，不能确定协议下的上限。');
+  rows.push('以上假设该专项培训服务期约定成立且确有应承担违约金的情形，不等于实际应付。');
+  result('training',rows,agreed!==null&&agreed>split);
+}
+function render(){trialCheck();bonusCheck();trainingCheck();}
+const privacy='中国大陆劳动合同 · 输入只在当前页面计算，不上传、不保存。';
+form.addEventListener('submit',e=>e.preventDefault());
+form.addEventListener('input',render);
+form.addEventListener('reset',()=>queueMicrotask(()=>{$('state').textContent=privacy;render();}));
+$('demo').addEventListener('click',()=>{
+  const example={term:'2',trialMonths:3,salary:12000,trialSalary:9000,localMin:'',peerMin:'',bonusRule:'both',bonusMoney:18000,trainingType:'yes',fee:12000,penalty:10000,totalMonths:24,servedMonths:6};
+  Object.entries(example).forEach(([id,value])=>{$(id).value=value;});
+  $('state').textContent='已填入虚构示例。'+privacy;
+  render();
+});
+document.querySelector('a[href="#sources"]').addEventListener('click',()=>{$('sources').open=true;});
+render();
+</script>
+</body>
+</html>
